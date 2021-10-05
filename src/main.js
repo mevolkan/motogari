@@ -1,51 +1,4 @@
 
-// const products = [
-//     {
-//         name: "Giant BBQ",
-//         image: "https://i.imgur.com/yPreV19.png",
-//         description: `Grilled chicken, beef, fish, sausages, bacon, 
-//         vegetables served with chips.`,
-//         location: "Kimironko Market",
-//         owner: "0x32Be343B94f860124dC4fEe278FDCBD38C102D88",
-//         price: 3,
-//         sold: 27,
-//         index: 0,
-//     },
-//     {
-//         name: "BBQ Chicken",
-//         image: "https://i.imgur.com/NMEzoYb.png",
-//         description: `French fries and grilled chicken served with gacumbari 
-//         and avocados with cheese.`,
-//         location: "Afrika Fresh KG 541 St",
-//         owner: "0x3275B7F400cCdeBeDaf0D8A9a7C8C1aBE2d747Ea",
-//         price: 4,
-//         sold: 12,
-//         index: 1,
-//     },
-//     {
-//         name: "Beef burrito",
-//         image: "https://i.imgur.com/RNlv3S6.png",
-//         description: `Homemade tortilla with your choice of filling, cheese, 
-//         guacamole salsa with Mexican refried beans and rice.`,
-//         location: "Asili - KN 4 St",
-//         owner: "0x2EF48F32eB0AEB90778A2170a0558A941b72BFFb",
-//         price: 2,
-//         sold: 35,
-//         index: 2,
-//     },
-//     {
-//         name: "Barbecue Pizza",
-//         image: "https://i.imgur.com/fpiDeFd.png",
-//         description: `Barbecue Chicken Pizza: Chicken, gouda, pineapple, onions 
-//         and house-made BBQ sauce.`,
-//         location: "Kigali Hut KG 7 Ave",
-//         owner: "0x2EF48F32eB0AEB90778A2170a0558A941b72BFFb",
-//         price: 1,
-//         sold: 2,
-//         index: 3,
-//     },
-// ]
-
 import Web3 from "web3"
 import { newKitFromWeb3 } from "@celo/contractkit"
 import BigNumber from "bignumber.js"
@@ -97,12 +50,12 @@ const getBalance = async function () {
   document.querySelector("#balance").textContent = cUSDBalance
 }
 
-const getProducts = async function() {
-  const _productsLength = await contract.methods.getProductsLength().call()
+const getVehicles = async function() {
+  const _productsLength = await contract.methods.getVehiclesLength().call()
   const _products = []
   for (let i = 0; i < _productsLength; i++) {
     let _product = new Promise(async (resolve, reject) => {
-      let p = await contract.methods.readProduct(i).call()
+      let p = await contract.methods.readVehicle(i).call()
       resolve({
         index: i,
         owner: p[0],
@@ -117,10 +70,10 @@ const getProducts = async function() {
     _products.push(_product)
   }
   products = await Promise.all(_products)
-  renderProducts()
+  renderVehicles()
 }
 
-function renderProducts() {
+function renderVehicles() {
   document.getElementById("marketplace").innerHTML = ""
   products.forEach((_product) => {
     const newDiv = document.createElement("div")
@@ -193,7 +146,7 @@ window.addEventListener("load", async () => {
   notification("⌛ Loading...")
   await connectCeloWallet()
   await getBalance()
-  await getProducts()
+  await getVehicles()
   notificationOff()
 });
 
@@ -212,13 +165,13 @@ document
     notification(`⌛ Adding "${params[0]}"...`)
     try {
       const result = await contract.methods
-        .writeProduct(...params)
+        .writeVehicle(...params)
         .send({ from: kit.defaultAccount })
     } catch (error) {
       notification(`⚠️ ${error}.`)
     }
     notification(`🎉 You successfully added "${params[0]}".`)
-    getProducts()
+    getVehicles()
   })
 
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
@@ -233,10 +186,10 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
     notification(`⌛ Awaiting payment for "${products[index].name}"...`)
     try {
       const result = await contract.methods
-        .buyProduct(index)
+        .buyVehicle(index)
         .send({ from: kit.defaultAccount })
       notification(`🎉 You successfully bought "${products[index].name}".`)
-      getProducts()
+      getVehicles()
       getBalance()
     } catch (error) {
       notification(`⚠️ ${error}.`)

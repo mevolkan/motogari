@@ -14,12 +14,12 @@ interface IERC20Token {
   event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-contract Marketplace {
+contract motogariMarketplace {
 
     uint internal productsLength = 0;
     address internal cUsdTokenAddress = 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
 
-    struct Product {
+    struct Vehicle {
         address payable owner;
         string name;
         string image;
@@ -29,9 +29,9 @@ contract Marketplace {
         uint sold;
     }
 
-    mapping (uint => Product) internal products;
+    mapping (uint => Vehicle) internal products;
 
-    function writeProduct(
+    function writeVehicle(
         string memory _name,
         string memory _image,
         string memory _description, 
@@ -39,7 +39,7 @@ contract Marketplace {
         uint _price
     ) public {
         uint _sold = 0;
-        products[productsLength] = Product(
+        products[productsLength] = Vehicle(
             payable(msg.sender),
             _name,
             _image,
@@ -51,7 +51,7 @@ contract Marketplace {
         productsLength++;
     }
 
-    function readProduct(uint _index) public view returns (
+    function readVehicle(uint _index) public view returns (
         address payable,
         string memory, 
         string memory, 
@@ -71,7 +71,7 @@ contract Marketplace {
         );
     }
     
-    function buyProduct(uint _index) public payable  {
+    function buyVehicle(uint _index) public payable  {
         require(
           IERC20Token(cUsdTokenAddress).transferFrom(
             msg.sender,
@@ -83,7 +83,7 @@ contract Marketplace {
         products[_index].sold++;
     }
     
-    function getProductsLength() public view returns (uint) {
+    function getVehiclesLength() public view returns (uint) {
         return (productsLength);
     }
 }
