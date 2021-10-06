@@ -14,44 +14,45 @@ interface IERC20Token {
   event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-contract motogariMarketplace {
+contract Marketplace {
 
     uint internal productsLength = 0;
     address internal cUsdTokenAddress = 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
 
-    struct Vehicle {
+    struct Product {
         address payable owner;
         string name;
         string image;
         string description;
         string location;
         uint price;
-        uint sold;
+        uint mileage;
     }
 
-    mapping (uint => Vehicle) internal products;
+    mapping (uint => Product) internal products;
 
-    function writeVehicle(
+    function writeProduct(
         string memory _name,
         string memory _image,
         string memory _description, 
         string memory _location, 
         uint _price
+        uint _mileage
     ) public {
-        uint _sold = 0;
-        products[productsLength] = Vehicle(
+   
+        products[productsLength] = Product(
             payable(msg.sender),
             _name,
             _image,
             _description,
             _location,
             _price,
-            _sold
+            _mileage
         );
         productsLength++;
     }
 
-    function readVehicle(uint _index) public view returns (
+    function readProduct(uint _index) public view returns (
         address payable,
         string memory, 
         string memory, 
@@ -67,11 +68,11 @@ contract motogariMarketplace {
             products[_index].description, 
             products[_index].location, 
             products[_index].price,
-            products[_index].sold
+            products[_index].mileage
         );
     }
     
-    function buyVehicle(uint _index) public payable  {
+    function buyProduct(uint _index) public payable  {
         require(
           IERC20Token(cUsdTokenAddress).transferFrom(
             msg.sender,
@@ -80,10 +81,10 @@ contract motogariMarketplace {
           ),
           "Transfer failed."
         );
-        products[_index].sold++;
+        
     }
     
-    function getVehiclesLength() public view returns (uint) {
+    function getProductsLength() public view returns (uint) {
         return (productsLength);
     }
 }

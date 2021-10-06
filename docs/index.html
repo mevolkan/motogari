@@ -31,27 +31,40 @@
         }
     </style>
 
-    <title>Street Food Kigali</title>
+    <title>Motogari</title>
 </head>
 
 <body>
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <span class="navbar-brand m-0 h4 fw-bold">Motogari</span>
+            <span class="nav-link border rounded-pill bg-light">
+                <span id="balance">0</span>
+                cUSD
+            </span>
+        </div>
+    </nav>
     <div class="container mt-2" style="max-width: 72em">
 
-        <nav class="navbar bg-white navbar-light">
-            <div class="container-fluid">
-                <span class="navbar-brand m-0 h4 fw-bold">Street Food Kigali</span>
-                <span class="nav-link border rounded-pill bg-light">
-                    <span id="balance">0</span>
-                    cUSD
-                </span>
+
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+              <h1 class="display-4">Motogari</h1>
+              <p class="lead">This is a vehicle sale marketplace with transactions on the Celo network.</p>
             </div>
-        </nav>
+          </div>
         <div class="alert alert-warning sticky-top mt-2" role="alert">
-            <span id="notification">⌛ Loading...</span>
+            <!-- <span id="notification">⌛ Loading...</span> -->
+            <div  class="text-center">
+                <div class="spinner-border" role="status">
+                  <span id="notification" class="sr-only">Loading...</span>
+                </div>
+              </div>
         </div>
+        
         <div class="mb-4" style="margin-top: 4em">
             <a class="btn btn-dark rounded-pill" data-bs-toggle="modal" data-bs-target="#addModal">
-                Add product
+                Sell a car
             </a>
         </div>
         <main id="marketplace" class="row"></main>
@@ -62,7 +75,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="newProductModalLabel">New Product</h5>
+                    <h5 class="modal-title" id="newProductModalLabel">Enter details of new vehicle</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -85,6 +98,10 @@
                                     placeholder="Enter location" />
                             </div>
                             <div class="col">
+                                <input type="text" id="newMileage" class="form-control mb-2"
+                                    placeholder="Enter Mileage" />
+                            </div>
+                            <div class="col">
                                 <input type="text" id="newPrice" class="form-control mb-2" placeholder="Enter price" />
                             </div>
                         </div>
@@ -95,7 +112,7 @@
                         Close
                     </button>
                     <button type="button" class="btn btn-dark" data-bs-dismiss="modal" id="newProductBtn">
-                        Add product
+                        Add Vehicle
                     </button>
                 </div>
             </div>

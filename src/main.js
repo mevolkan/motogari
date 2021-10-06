@@ -7,7 +7,7 @@ import erc20Abi from "../contract/erc20.abi.json"
 
 const ERC20_DECIMALS = 18
 const MPContractAddress = "0x178134c92EC973F34dD0dd762284b852B211CFC8"
-const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
+const cUSDContractAddress = "0x0bf503658575F967658AAFf687AFAC72e7B1F25f"
 
 let kit
 let contract
@@ -50,12 +50,12 @@ const getBalance = async function () {
   document.querySelector("#balance").textContent = cUSDBalance
 }
 
-const getVehicles = async function() {
-  const _productsLength = await contract.methods.getVehiclesLength().call()
+const getProducts = async function() {
+  const _productsLength = await contract.methods.getProductsLength().call()
   const _products = []
   for (let i = 0; i < _productsLength; i++) {
     let _product = new Promise(async (resolve, reject) => {
-      let p = await contract.methods.readVehicle(i).call()
+      let p = await contract.methods.readProduct(i).call()
       resolve({
         index: i,
         owner: p[0],
@@ -64,16 +64,16 @@ const getVehicles = async function() {
         description: p[3],
         location: p[4],
         price: new BigNumber(p[5]),
-        sold: p[6],
+        mileage: p[6],
       })
     })
     _products.push(_product)
   }
   products = await Promise.all(_products)
-  renderVehicles()
+  renderProducts()
 }
 
-function renderVehicles() {
+function renderProducts() {
   document.getElementById("marketplace").innerHTML = ""
   products.forEach((_product) => {
     const newDiv = document.createElement("div")
@@ -88,7 +88,7 @@ function productTemplate(_product) {
     <div class="card mb-4">
       <img class="card-img-top" src="${_product.image}" alt="...">
       <div class="position-absolute top-0 end-0 bg-warning mt-4 px-2 py-1 rounded-start">
-        ${_product.sold} Sold
+        ${_product.mileage} Km
       </div>
       <div class="card-body text-left p-4 position-relative">
         <div class="translate-middle-y position-absolute top-0">
@@ -146,7 +146,7 @@ window.addEventListener("load", async () => {
   notification("⌛ Loading...")
   await connectCeloWallet()
   await getBalance()
-  await getVehicles()
+  await getProducts()
   notificationOff()
 });
 
@@ -160,18 +160,19 @@ document
       document.getElementById("newLocation").value,
       new BigNumber(document.getElementById("newPrice").value)
       .shiftedBy(ERC20_DECIMALS)
-      .toString()
+      .toString(),
+      document.getElementById("newMileage").value
     ]
     notification(`⌛ Adding "${params[0]}"...`)
     try {
       const result = await contract.methods
-        .writeVehicle(...params)
+        .writeProduct(...params)
         .send({ from: kit.defaultAccount })
     } catch (error) {
       notification(`⚠️ ${error}.`)
     }
     notification(`🎉 You successfully added "${params[0]}".`)
-    getVehicles()
+    getProducts()
   })
 
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
@@ -186,10 +187,10 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
     notification(`⌛ Awaiting payment for "${products[index].name}"...`)
     try {
       const result = await contract.methods
-        .buyVehicle(index)
+        .buyProduct(index)
         .send({ from: kit.defaultAccount })
       notification(`🎉 You successfully bought "${products[index].name}".`)
-      getVehicles()
+      getProducts()
       getBalance()
     } catch (error) {
       notification(`⚠️ ${error}.`)
