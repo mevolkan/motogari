@@ -16,10 +16,10 @@ interface IERC20Token {
 
 contract Marketplace {
 
-    uint internal productsLength = 0;
+    uint internal carsLength = 0;
     address internal cUsdTokenAddress = 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
 
-    struct Product {
+    struct Car {
         address payable owner;
         string name;
         string image;
@@ -29,18 +29,18 @@ contract Marketplace {
         uint mileage;
     }
 
-    mapping (uint => Product) internal products;
+    mapping (uint => Car) internal cars;
 
-    function writeProduct(
+    function addCar(
         string memory _name,
         string memory _image,
         string memory _description, 
         string memory _location, 
-        uint _price
+        uint _price,
         uint _mileage
     ) public {
    
-        products[productsLength] = Product(
+        cars[carsLength] = Car(
             payable(msg.sender),
             _name,
             _image,
@@ -49,10 +49,10 @@ contract Marketplace {
             _price,
             _mileage
         );
-        productsLength++;
+        carsLength++;
     }
 
-    function readProduct(uint _index) public view returns (
+    function getCar(uint _index) public view returns (
         address payable,
         string memory, 
         string memory, 
@@ -62,29 +62,29 @@ contract Marketplace {
         uint
     ) {
         return (
-            products[_index].owner,
-            products[_index].name, 
-            products[_index].image, 
-            products[_index].description, 
-            products[_index].location, 
-            products[_index].price,
-            products[_index].mileage
+            cars[_index].owner,
+            cars[_index].name, 
+            cars[_index].image, 
+            cars[_index].description, 
+            cars[_index].location, 
+            cars[_index].price,
+            cars[_index].mileage
         );
     }
     
-    function buyProduct(uint _index) public payable  {
+    function buyCar(uint _index) public payable  {
         require(
           IERC20Token(cUsdTokenAddress).transferFrom(
             msg.sender,
-            products[_index].owner,
-            products[_index].price
+            cars[_index].owner,
+            cars[_index].price
           ),
           "Transfer failed."
         );
         
     }
     
-    function getProductsLength() public view returns (uint) {
-        return (productsLength);
+    function getCarLength() public view returns (uint) {
+        return (carsLength);
     }
 }

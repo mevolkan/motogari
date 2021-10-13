@@ -6,12 +6,12 @@ import marketplaceAbi from "../contract/marketplace.abi.json"
 import erc20Abi from "../contract/erc20.abi.json"
 
 const ERC20_DECIMALS = 18
-const MPContractAddress = "0x178134c92EC973F34dD0dd762284b852B211CFC8"
+const MPContractAddress = "0x8514b0705B4C7C8638093750ED81889Fd1bba345"
 const cUSDContractAddress = "0x0bf503658575F967658AAFf687AFAC72e7B1F25f"
 
 let kit
 let contract
-let products = []
+let cars = []
 
 const connectCeloWallet = async function () {
   if (window.celo) {
@@ -50,12 +50,12 @@ const getBalance = async function () {
   document.querySelector("#balance").textContent = cUSDBalance
 }
 
-const getProducts = async function() {
-  const _productsLength = await contract.methods.getProductsLength().call()
-  const _products = []
+const getCars = async function() {
+  const _carsLength = await contract.methods.getCarsLength().call()
+  const _cars = []
   for (let i = 0; i < _productsLength; i++) {
-    let _product = new Promise(async (resolve, reject) => {
-      let p = await contract.methods.readProduct(i).call()
+    let _car = new Promise(async (resolve, reject) => {
+      let p = await contract.methods.getCar(i).call()
       resolve({
         index: i,
         owner: p[0],
@@ -67,46 +67,46 @@ const getProducts = async function() {
         mileage: p[6],
       })
     })
-    _products.push(_product)
+    _cars.push(_car)
   }
-  products = await Promise.all(_products)
+  cars = await Promise.all(_cars)
   renderProducts()
 }
 
 function renderProducts() {
   document.getElementById("marketplace").innerHTML = ""
-  products.forEach((_product) => {
+  cars.forEach((_car) => {
     const newDiv = document.createElement("div")
     newDiv.className = "col-md-4"
-    newDiv.innerHTML = productTemplate(_product)
+    newDiv.innerHTML = productTemplate(_car)
     document.getElementById("marketplace").appendChild(newDiv)
   })
 }
 
-function productTemplate(_product) {
+function productTemplate(_car) {
   return `
     <div class="card mb-4">
-      <img class="card-img-top" src="${_product.image}" alt="...">
+      <img class="card-img-top" src="${_car.image}" alt="...">
       <div class="position-absolute top-0 end-0 bg-warning mt-4 px-2 py-1 rounded-start">
-        ${_product.mileage} Km
+        ${_car.mileage} Km
       </div>
       <div class="card-body text-left p-4 position-relative">
         <div class="translate-middle-y position-absolute top-0">
-        ${identiconTemplate(_product.owner)}
+        ${identiconTemplate(_car.owner)}
         </div>
-        <h2 class="card-title fs-4 fw-bold mt-2">${_product.name}</h2>
+        <h2 class="card-title fs-4 fw-bold mt-2">${_car.name}</h2>
         <p class="card-text mb-4" style="min-height: 82px">
-          ${_product.description}             
+          ${_car.description}             
         </p>
         <p class="card-text mt-4">
           <i class="bi bi-geo-alt-fill"></i>
-          <span>${_product.location}</span>
+          <span>${_car.location}</span>
         </p>
         <div class="d-grid gap-2">
           <a class="btn btn-lg btn-outline-dark buyBtn fs-6 p-3" id=${
-            _product.index
+            _car.index
           }>
-            Buy for ${_product.price.shiftedBy(-ERC20_DECIMALS).toFixed(2)} cUSD
+            Buy for ${_car.price.shiftedBy(-ERC20_DECIMALS).toFixed(2)} cUSD
           </a>
         </div>
       </div>
@@ -146,7 +146,7 @@ window.addEventListener("load", async () => {
   notification("⌛ Loading...")
   await connectCeloWallet()
   await getBalance()
-  await getProducts()
+  await getCars()
   notificationOff()
 });
 
@@ -166,13 +166,13 @@ document
     notification(`⌛ Adding "${params[0]}"...`)
     try {
       const result = await contract.methods
-        .writeProduct(...params)
+        .addCar(...params)
         .send({ from: kit.defaultAccount })
     } catch (error) {
       notification(`⚠️ ${error}.`)
     }
     notification(`🎉 You successfully added "${params[0]}".`)
-    getProducts()
+    getCars()
   })
 
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
@@ -180,17 +180,17 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
     const index = e.target.id
     notification("⌛ Waiting for payment approval...")
     try {
-      await approve(products[index].price)
+      await approve(cars[index].price)
     } catch (error) {
       notification(`⚠️ ${error}.`)
     }
-    notification(`⌛ Awaiting payment for "${products[index].name}"...`)
+    notification(`⌛ Awaiting payment for "${cars[index].name}"...`)
     try {
       const result = await contract.methods
-        .buyProduct(index)
+        .buyCar(index)
         .send({ from: kit.defaultAccount })
-      notification(`🎉 You successfully bought "${products[index].name}".`)
-      getProducts()
+      notification(`🎉 You successfully bought "${cars[index].name}".`)
+      getCars()
       getBalance()
     } catch (error) {
       notification(`⚠️ ${error}.`)
