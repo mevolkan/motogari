@@ -2,7 +2,7 @@
 import Web3 from "web3"
 import { newKitFromWeb3 } from "@celo/contractkit"
 import BigNumber from "bignumber.js"
-import marketplaceAbi from "../contract/marketplace.abi.json"
+import carSaleABI from "../contract/carSale.json"
 import erc20Abi from "../contract/erc20.abi.json"
 
 const ERC20_DECIMALS = 18
@@ -26,7 +26,7 @@ const connectCeloWallet = async function () {
       const accounts = await kit.web3.eth.getAccounts()
       kit.defaultAccount = accounts[0]
 
-      contract = new kit.web3.eth.Contract(marketplaceAbi, MPContractAddress)
+      contract = new kit.web3.eth.Contract(carSaleABI, MPContractAddress)
     } catch (error) {
       notification(`⚠️ ${error}.`)
     }
@@ -51,11 +51,11 @@ const getBalance = async function () {
 }
 
 const getProducts = async function() {
-  const _productsLength = await contract.methods.getProductsLength().call()
+  const _productsLength = await contract.methods.getCarLength().call()
   const _products = []
   for (let i = 0; i < _productsLength; i++) {
     let _product = new Promise(async (resolve, reject) => {
-      let p = await contract.methods.readProduct(i).call()
+      let p = await contract.methods.readCar(i).call()
       resolve({
         index: i,
         owner: p[0],
@@ -65,6 +65,7 @@ const getProducts = async function() {
         location: p[4],
         price: new BigNumber(p[5]),
         mileage: p[6],
+        sales : p[7]
       })
     })
     _products.push(_product)
@@ -166,7 +167,7 @@ document
     notification(`⌛ Adding "${params[0]}"...`)
     try {
       const result = await contract.methods
-        .writeProduct(...params)
+        .writeCar(...params)
         .send({ from: kit.defaultAccount })
     } catch (error) {
       notification(`⚠️ ${error}.`)
@@ -186,8 +187,8 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
     }
     notification(`⌛ Awaiting payment for "${products[index].name}"...`)
     try {
-      const result = await contract.methods
-        .buyProduct(index)
+     await contract.methods
+        .buyCar(index)
         .send({ from: kit.defaultAccount })
       notification(`🎉 You successfully bought "${products[index].name}".`)
       getProducts()
